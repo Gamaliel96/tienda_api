@@ -2,6 +2,7 @@ import { getConnection as getMongoDBConn } from '@models/mongodb/MongoDBConn';
 import { ProductoDao as ProductosMongoDbDao } from '@models/mongodb/ProductoDao';
 export interface IProducto {
   nombre: string;
+  imagen: string;
   descripcion: string;
   precio: number;
   stock: number;
@@ -24,6 +25,9 @@ export class Producto {
   }
   public getAllProductosFromUser(id: string) {
     return this.dao.getProductosByUser(id);
+  }
+  public getProductoPaged(page: number, items: number) {
+    return this.dao.getProductosPaged(page, items);
   }
   public getProductoByUserPaged(userId: string, page: number, items: number) {
     return this.dao.getProductosByUserPaged(userId, page, items);
