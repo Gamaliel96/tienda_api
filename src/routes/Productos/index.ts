@@ -6,14 +6,19 @@ import { jwtValidator } from '@server/middleware/jwtBeaereValidator';
 const router = Router();
 const productoInstance = new Producto();
 
-router.get('/foryou',  async (req , res) => {
+router.get('/all', jwtValidator, async (req: WithUserRequest, res) => {
+  try {
+    res.json(await productoInstance.getAllProductosFromUser(req.user._id));
+  } catch (ex) {
+    console.error(ex);
+    res.status(503).json({ error: ex });
+  }
+});
+router.get('/foryou', async (req, res) => {
   try {
     const { page, items } = { page: '1', items: '10', ...req.query };
     res.json(
-      await productoInstance.getProductoPaged(
-        Number(page),
-        Number(items),
-      ),
+      await productoInstance.getProductoPaged(Number(page), Number(items)),
     );
   } catch (ex) {
     console.error(ex);
@@ -37,7 +42,7 @@ router.get('/', jwtValidator, async (req: WithUserRequest, res) => {
   }
 });
 
-router.get('/summary',jwtValidator, async (req: WithUserRequest, res) => {
+router.get('/summary', jwtValidator, async (req: WithUserRequest, res) => {
   try {
     res.json(await productoInstance.getTypeSumarry(req.user._id));
   } catch (ex) {
@@ -46,7 +51,7 @@ router.get('/summary',jwtValidator, async (req: WithUserRequest, res) => {
   }
 });
 
-router.get('/count',jwtValidator, async (req: WithUserRequest, res) => {
+router.get('/count', jwtValidator, async (req: WithUserRequest, res) => {
   try {
     res.json({ count: await productoInstance.getCountProducto(req.user._id) });
   } catch (ex) {
@@ -55,7 +60,7 @@ router.get('/count',jwtValidator, async (req: WithUserRequest, res) => {
   }
 });
 
-router.get('/byindex/:index',jwtValidator, async (req, res) => {
+router.get('/byindex/:index', jwtValidator, async (req, res) => {
   try {
     const { index: id } = req.params;
     res.json(await productoInstance.getProductoByIndex(id));
@@ -65,7 +70,7 @@ router.get('/byindex/:index',jwtValidator, async (req, res) => {
   }
 });
 
-router.post('/testvalidator',jwtValidator, async (req, res) => {
+router.post('/testvalidator', jwtValidator, async (req, res) => {
   const { email } = req.body;
 
   const validateEmailSchema = commonValidator.email;
@@ -81,9 +86,11 @@ router.post('/testvalidator',jwtValidator, async (req, res) => {
   return res.json({ email });
 });
 
-router.post('/new',jwtValidator, async (req: WithUserRequest, res) => {
+router.post('/new', jwtValidator, async (req: WithUserRequest, res) => {
   try {
     const { _id: userId } = req.user;
+    console.log({body:req.body});
+    
     const newProducto = req.body as unknown as IProducto;
     //VALIDATE
 
@@ -97,7 +104,7 @@ router.post('/new',jwtValidator, async (req: WithUserRequest, res) => {
   }
 });
 
-router.put('/update/:index',jwtValidator, async (req, res) => {
+router.put('/update/:index', jwtValidator, async (req, res) => {
   try {
     const { index: id } = req.params;
     const productoFromForm = req.body as IProducto;
@@ -108,7 +115,7 @@ router.put('/update/:index',jwtValidator, async (req, res) => {
   }
 });
 
-router.delete('/delete/:index',jwtValidator, (req, res) => {
+router.delete('/delete/:index', jwtValidator, (req, res) => {
   try {
     const { index: id } = req.params;
     if (productoInstance.deleteProducto(id)) {
