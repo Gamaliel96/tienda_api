@@ -6,9 +6,9 @@ import { jwtValidator } from '@server/middleware/jwtBeaereValidator';
 const router = Router();
 const productoInstance = new Producto();
 
-router.get('/all', jwtValidator, async (req: WithUserRequest, res) => {
+router.get('/all', async (_req, res) => {
   try {
-    res.json(await productoInstance.getAllProductosFromUser(req.user._id));
+    res.json(await productoInstance.getAllProductos());
   } catch (ex) {
     console.error(ex);
     res.status(503).json({ error: ex });
@@ -25,13 +25,12 @@ router.get('/foryou', async (req, res) => {
     res.status(503).json({ error: ex });
   }
 });
-router.get('/', jwtValidator, async (req: WithUserRequest, res) => {
+router.get('/', async (req , res) => {
   try {
     const { page, items } = { page: '1', items: '10', ...req.query };
-    console.log('PRODUCTOS', req.user);
+    console.log('PRODUCTOS' );
     res.json(
-      await productoInstance.getProductoByUserPaged(
-        req.user?._id,
+      await productoInstance.getProductoPaged(
         Number(page),
         Number(items),
       ),
@@ -89,8 +88,8 @@ router.post('/testvalidator', jwtValidator, async (req, res) => {
 router.post('/new', jwtValidator, async (req: WithUserRequest, res) => {
   try {
     const { _id: userId } = req.user;
-    console.log({body:req.body});
-    
+    console.log({ body: req.body });
+
     const newProducto = req.body as unknown as IProducto;
     //VALIDATE
 
